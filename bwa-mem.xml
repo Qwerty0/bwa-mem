@@ -21,6 +21,7 @@ bwa mem $reference $input1
 </command>
 
   <inputs>
+
     <!-- copypasta -->
     <conditional name="ref">
       <param name="isindexed" type="select" label="Will you select a reference genome from your history or use a built-in index?">
@@ -58,6 +59,7 @@ bwa mem $reference $input1
       </when>
     </conditional>
     <!-- /copypasta -->
+    
   </inputs>
 
   <outputs>
