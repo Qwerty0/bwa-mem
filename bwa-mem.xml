@@ -10,14 +10,18 @@
   <command>bwa mem $ref_prefix $reads_1 $reads_2 > $output</command>
   -->
   <command>
-#if $ref.isindexed == "false":
+echo '
+#if $ref.isindexed:
+  bwa mem $ref.index.fields.path $input1
+#else
   ln -s $reference ref.fa &amp;&amp; bwa index ref.fa &amp;&amp;
+  bwa mem ref.fa $input1
 #end if
-  bwa mem $reference $input1
-#if $reads.paired == "true":
+#if $reads.paired:
   $input2
 #end if
-> $output
+&gt; $output
+' &gt;&amp;2
 </command>
 
   <inputs>
@@ -26,19 +30,17 @@
     <conditional name="ref">
       <param name="isindexed" type="select" label="Will you select a reference genome from your history or use a built-in index?">
         <option value="true">Use a built-in index</option>
-        <option value="false">Use one from your history</option>
+        <option value="">Use one from your history</option>
       </param>
       <when value="true">
-        <param name="indices" type="select" label="Select a reference genome">
+        <param name="index" type="select" label="Select a reference genome">
           <options from_data_table="bwa_indexes">
             <filter type="sort_by" column="2" />
             <validator type="no_options" message="No indexes are available" />
           </options>
         </param>
-        <!-- to let $reference be used in both cases: -->
-        <param name="reference" type="hidden" value="reference.fa" />
       </when>
-      <when value="false">
+      <when value="">
         <param name="reference" type="data" format="fasta" metadata_name="dbkey" label="Select a reference from your history" />
       </when>
     </conditional>
@@ -47,10 +49,10 @@
     <!-- copypasta -->
     <conditional name="reads">
       <param name="paired" type="select" label="Is this library mate-paired?">
-        <option value="false">Single-end</option>
+        <option value="">Single-end</option>
         <option value="true">Paired-end</option>
       </param>
-      <when value="false">
+      <when value="">
         <param name="input1" type="data" format="fastqsanger,fastqillumina" label="FASTQ file" help="FASTQ with either Sanger-scaled quality values (fastqsanger) or Illumina-scaled quality values (fastqillumina)" />
       </when>
       <when value="true">
