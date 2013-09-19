@@ -10,23 +10,24 @@
   <command>bwa mem $ref_prefix $reads_1 $reads_2 > $output</command>
   -->
   <command>
-echo '
-#if $ref.isindexed:
-  bwa mem $ref.index.fields.path $input1
-#else
+#if not $ref.isindexed:
   ln -s $reference ref.fa &amp;&amp; bwa index ref.fa &amp;&amp;
-  bwa mem ref.fa $input1
 #end if
+bwa mem
+#if $ref.isindexed:
+  $ref.index.fields.path
+#else
+  ref.fa
+#end if
+$input1
 #if $reads.paired:
   $input2
 #end if
 &gt; $output
-' &gt;&amp;2
 </command>
 
   <inputs>
 
-    <!-- copypasta -->
     <conditional name="ref">
       <param name="isindexed" type="select" label="Will you select a reference genome from your history or use a built-in index?">
         <option value="true">Use a built-in index</option>
@@ -44,9 +45,7 @@ echo '
         <param name="reference" type="data" format="fasta" metadata_name="dbkey" label="Select a reference from your history" />
       </when>
     </conditional>
-    <!-- /copypasta -->
-    <!-- ask user if reference file is over 2GB -->
-    <!-- copypasta -->
+    <!-- ask user if reference file is over 2GB? -->
     <conditional name="reads">
       <param name="paired" type="select" label="Is this library mate-paired?">
         <option value="">Single-end</option>
@@ -60,12 +59,16 @@ echo '
         <param name="input2" type="data" format="fastqsanger,fastqillumina" label="Reverse FASTQ file" help="FASTQ with either Sanger-scaled quality values (fastqsanger) or Illumina-scaled quality values (fastqillumina)" />
       </when>
     </conditional>
-    <!-- /copypasta -->
 
   </inputs>
 
   <outputs>
     <data name="output" format="sam" />
   </outputs>
+
+  <stdio>
+    <exit_code range="1:" err_level="fatal"/>
+    <exit_code range=":-1" err_level="fatal"/>
+  </stdio>
 
 </tool>
