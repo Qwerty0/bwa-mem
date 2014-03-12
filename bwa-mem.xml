@@ -11,9 +11,12 @@
   -->
   <command>
 #if not $ref.isindexed:
-  ln -s $reference ref.fa &amp;&amp; bwa index ref.fa &amp;&amp;
+  ln -s $reference ref.fa &amp;&amp; bwa index -a bwtsw ref.fa &amp;&amp;
 #end if
 bwa mem
+#if $options.advanced:
+  -k $seed -w $bandwidth -d $zdropoff -r $reseed
+#end if
 #if $ref.isindexed:
   $ref.index.fields.path
 #else
@@ -57,6 +60,21 @@ $input1
       <when value="true">
         <param name="input1" type="data" format="fastqsanger,fastqillumina" label="Forward FASTQ file" help="FASTQ with either Sanger-scaled quality values (fastqsanger) or Illumina-scaled quality values (fastqillumina)" />
         <param name="input2" type="data" format="fastqsanger,fastqillumina" label="Reverse FASTQ file" help="FASTQ with either Sanger-scaled quality values (fastqsanger) or Illumina-scaled quality values (fastqillumina)" />
+      </when>
+    </conditional>
+
+    <conditional name="options">
+      <param name="advanced" type="select" label="Use advanced options?">
+        <option value="">default options</option>
+        <option value="true">advanced options</option>
+      </param>
+      <when value="" />
+      <when value="true">
+        <param name="seed" type="integer" label="Minimum seed length" help="Matches shorter than this will be missed." value="19" />
+        <param name="bandwidth" type="integer" label="Band width" help="Gaps longer than this will not be found." value="100" />
+        <param name="zdropoff" type="integer" label="Off-diagonal X-dropoff (Z-dropoff)" help="Stop extension when the difference between the best and the current extension score is above |i-j|*A+dropoff" value="100" />
+        <param name="reseed" type="float" label="Trigger re-seeding for a MEM longer than minSeedLen*[this]" help="Larger value yields fewer seeds, which leads to faster alignment speed but lower accuracy" value="1.5" />
+        <param name="cutoff" type="integer" label="MEM count cutoff" help="Discard a MEM if it has more than this many occurences in the genome" value="10000" />
       </when>
     </conditional>
 
