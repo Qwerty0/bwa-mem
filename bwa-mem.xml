@@ -1,7 +1,7 @@
 <tool id="bwa_mem" name="BWA-MEM mapper" version="0.1">
 
   <requirements>
-    <requirement type="package" version="0.7.5a">bwa</requirement>
+    <requirement type="package" version="0.7.7">bwa</requirement>
   </requirements>
   
   <description></description>
