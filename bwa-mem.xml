@@ -9,6 +9,12 @@
   <parallelism method="basic"></parallelism>
   <command>bwa mem $ref_prefix $reads_1 $reads_2 > $output</command>
   -->
+  <!-- If using a dataset from history instead of a built-in index, do indexing in an #if block in the command: link the dataset to the local directory and run bwa index on the link. -->
+  <!-- Example final command:
+  $ ln -s dataset7.dat ref.fa &&
+    bwa index -a bwtsw ref.fa &&
+    bwa mem ref.fa dataset3.dat dataset4.dat > dataset11.dat
+  --->
   <command>
 #if not $ref.isindexed:
   ln -s $reference ref.fa &amp;&amp; bwa index -a bwtsw ref.fa &amp;&amp;
@@ -31,6 +37,7 @@ $input1
 
   <inputs>
 
+    <!-- Get reference file (built-in index or history FASTA file) -->
     <conditional name="ref">
       <param name="isindexed" type="select" label="Will you select a reference genome from your history or use a built-in index?">
         <option value="true">Use a built-in index</option>
@@ -48,7 +55,9 @@ $input1
         <param name="reference" type="data" format="fasta" metadata_name="dbkey" label="Select a reference from your history" />
       </when>
     </conditional>
-    <!-- ask user if reference file is over 2GB? -->
+    <!-- TODO: ask user if reference file is over 2GB? -->
+
+    <!-- Get input fastq file(s) -->
     <conditional name="reads">
       <param name="paired" type="select" label="Is this library mate-paired?">
         <option value="">Single-end</option>
@@ -63,6 +72,7 @@ $input1
       </when>
     </conditional>
 
+    <!-- Advanced options -->
     <conditional name="options">
       <param name="advanced" type="select" label="Use advanced options?">
         <option value="">default options</option>
@@ -80,10 +90,12 @@ $input1
 
   </inputs>
 
+  <!-- Output SAM -->
   <outputs>
     <data name="output" format="sam" />
   </outputs>
 
+  <!-- Don't fail on stderr printing -->
   <stdio>
     <exit_code range="1:" err_level="fatal"/>
     <exit_code range=":-1" err_level="fatal"/>
