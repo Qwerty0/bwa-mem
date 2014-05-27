@@ -15,7 +15,7 @@
 #end if
 bwa mem
 #if $options.advanced:
-  -k $seed -w $bandwidth -d $zdropoff -r $reseed
+  -k $seed -w $bandwidth -d $xdropoff -r $reseed -c $cutoff
 #end if
 #if $ref.isindexed:
   $ref.index.fields.path
@@ -71,10 +71,10 @@ $input1
       <when value="" />
       <when value="true">
         <param name="seed" type="integer" label="Minimum seed length" help="Matches shorter than this will be missed." value="19" />
-        <param name="bandwidth" type="integer" label="Band width" help="Gaps longer than this will not be found." value="100" />
-        <param name="zdropoff" type="integer" label="Off-diagonal X-dropoff (Z-dropoff)" help="Stop extension when the difference between the best and the current extension score is above |i-j|*A+dropoff" value="100" />
-        <param name="reseed" type="float" label="Trigger re-seeding for a MEM longer than minSeedLen*[this]" help="Larger value yields fewer seeds, which leads to faster alignment speed but lower accuracy" value="1.5" />
-        <param name="cutoff" type="integer" label="MEM count cutoff" help="Discard a MEM if it has more than this many occurences in the genome" value="10000" />
+        <param name="bandwidth" type="integer" label="Band width for banded alignment" help="Gaps longer than this will not be found." value="100" />
+        <param name="xdropoff" type="integer" label="Off-diagonal X-dropoff" help="Stop extension when the difference between the best and the current extension score is above |i-j|*A+X" value="100" />
+        <param name="reseed" type="float" label="Look for internal seeds inside a seed longer than X*minSeedLen" help="Larger value yields fewer seeds, which leads to faster alignment speed but lower accuracy" value="1.5" />
+        <param name="cutoff" type="integer" label=" Skip seeds with more than X occurrences" help="Discard a seed if it has more than this many occurences in the genome" value="10000" />
       </when>
     </conditional>
 
